@@ -4,18 +4,21 @@ var url = require("url");
 
 function start(route) {
     var onRequest = function (request, response) {
-        var pathname = url.parse(request.url).pathname;
-        console.log("Request for " + pathname + " received");
+        var path = url.parse(request.url, true);
+        var pathname = path.pathname;
+        //console.log("Request for " + pathname + " received");
 
-        route(pathname);
+        var responseF = route(pathname);
 
-        response.writeHead(200, {"Content-Type": "text/plain"});
-        response.write("Hello");
+        var obj = responseF(path.query);
+
+        response.writeHead(200,
+            {"Content-Type": "application/json"});
+
+        response.write(JSON.stringify(obj));
         response.end();
     };
-    http.createServer(onRequest).listen(8888);
+    http.createServer(onRequest).listen(process.argv[2]);
 
-    console.log("Server started");
 }
-
 exports.start = start;
